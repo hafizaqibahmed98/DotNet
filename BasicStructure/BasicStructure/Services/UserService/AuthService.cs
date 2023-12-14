@@ -5,20 +5,22 @@ namespace BasicStructure.Services.UserService
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<IdentityUser> _user;
+        private readonly UserManager<ApplicationUser> _user;
         private readonly IConfiguration _config;
 
-        public AuthService(UserManager<IdentityUser> user, IConfiguration config)
+        public AuthService(UserManager<ApplicationUser> user, IConfiguration config)
         {
             _user = user;
             _config = config;
         }
-        public async Task<bool> RegisterUser(Models.LoginUser user)
+        public async Task<bool> RegisterUser(RegisterUserDTO user)
         {
-            var identityUser = new IdentityUser
+            var identityUser = new ApplicationUser
             {
-                UserName = user.Username,
-                Email = user.Username,
+                Email = user.Email,
+                UserName = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
             };
             var result = await _user.CreateAsync(identityUser, user.Password);
             return result.Succeeded;
@@ -26,7 +28,7 @@ namespace BasicStructure.Services.UserService
 
         public async Task<bool> LoginUser(Models.LoginUser user)
         {
-            var identityUser = await _user.FindByEmailAsync(user.Username);
+            var identityUser = await _user.FindByEmailAsync(user.Email);
             if (identityUser == null)
                 return false;
             return await _user.CheckPasswordAsync(identityUser, user.Password);
@@ -36,7 +38,7 @@ namespace BasicStructure.Services.UserService
         {
             IEnumerable<System.Security.Claims.Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
             };
             var securityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes
                 (_config.GetSection("JWT:Key").Value)

@@ -13,7 +13,7 @@ namespace BasicStructure.Controllers
         }
         
         [HttpPost("Register")]
-        public async Task<bool> RegisterUser(Models.LoginUser user)
+        public async Task<bool> RegisterUser(RegisterUserDTO user)
         {
             return await _authService.RegisterUser(user);
 
