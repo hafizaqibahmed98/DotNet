@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BasicFlowApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] 
     public class UserController : ControllerBase
     {
         private readonly InterfaceUserService _userService;
