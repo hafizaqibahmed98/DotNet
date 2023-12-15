@@ -3,7 +3,7 @@ namespace BasicStructure.Services.UserService
 {
     public interface IAuthService
     {
-        Task<bool> RegisterUser(RegisterUserDTO user);
+        Task<bool> RegisterUser(RegisterUserDTO user, string role);
 
         Task<bool> LoginUser(Models.LoginUser user);
 

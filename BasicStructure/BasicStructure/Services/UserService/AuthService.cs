@@ -6,24 +6,36 @@ namespace BasicStructure.Services.UserService
     public class AuthService : IAuthService
     {
         private readonly UserManager<ApplicationUser> _user;
+        private readonly RoleManager<IdentityRole> _role;
         private readonly IConfiguration _config;
 
-        public AuthService(UserManager<ApplicationUser> user, IConfiguration config)
+        public AuthService(UserManager<ApplicationUser> user,
+            RoleManager<IdentityRole> role,
+            IConfiguration config)
         {
             _user = user;
+            _role = role;
             _config = config;
         }
-        public async Task<bool> RegisterUser(RegisterUserDTO user)
+        public async Task<bool> RegisterUser(RegisterUserDTO user, string role)
         {
-            var identityUser = new ApplicationUser
+            if (await _role.RoleExistsAsync(role))
             {
-                Email = user.Email,
-                UserName = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-            };
-            var result = await _user.CreateAsync(identityUser, user.Password);
-            return result.Succeeded;
+                var identityUser = new ApplicationUser
+                {
+                    Email = user.Email,
+                    UserName = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                };
+                var result = await _user.CreateAsync(identityUser, user.Password);
+                if (result.Succeeded)
+                {
+                    result = await _user.AddToRoleAsync(identityUser, role);
+                }
+                return result.Succeeded;
+            }
+            return false;
         }
 
         public async Task<bool> LoginUser(Models.LoginUser user)
