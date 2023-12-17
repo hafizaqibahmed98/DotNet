@@ -6,11 +6,11 @@ namespace BasicStructure.Services.UserService
     public class AuthService : IAuthService
     {
         private readonly UserManager<ApplicationUser> _user;
-        private readonly RoleManager<IdentityRole> _role;
+        private readonly RoleManager<IdentityRole<int>> _role;
         private readonly IConfiguration _config;
 
         public AuthService(UserManager<ApplicationUser> user,
-            RoleManager<IdentityRole> role,
+            RoleManager<IdentityRole<int>> role,
             IConfiguration config)
         {
             _user = user;

@@ -16,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>( options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>( options =>
     options.Password.RequiredLength = 5
 ).AddEntityFrameworkStores<DataContext>()
 .AddDefaultTokenProviders();
