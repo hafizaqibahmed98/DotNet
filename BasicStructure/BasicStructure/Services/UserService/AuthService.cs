@@ -17,9 +17,10 @@ namespace BasicStructure.Services.UserService
             _role = role;
             _config = config;
         }
-        public async Task<bool> RegisterUser(RegisterUserDTO user, string role)
+        public async Task<bool> RegisterUser(RegisterUserDTO user, int roleId)
         {
-            if (await _role.RoleExistsAsync(role))
+            var role = await _role.FindByIdAsync(roleId.ToString());
+            if (role != null)
             {
                 var identityUser = new ApplicationUser
                 {
@@ -31,7 +32,7 @@ namespace BasicStructure.Services.UserService
                 var result = await _user.CreateAsync(identityUser, user.Password);
                 if (result.Succeeded)
                 {
-                    result = await _user.AddToRoleAsync(identityUser, role);
+                    result = await _user.AddToRoleAsync(identityUser, role.Name);
                 }
                 return result.Succeeded;
             }
