@@ -1,5 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace BasicStructure.Services.UserService
 {
@@ -8,14 +11,17 @@ namespace BasicStructure.Services.UserService
         private readonly UserManager<ApplicationUser> _user;
         private readonly RoleManager<IdentityRole<int>> _role;
         private readonly IConfiguration _config;
+        public DataContext _context { get; }
 
         public AuthService(UserManager<ApplicationUser> user,
             RoleManager<IdentityRole<int>> role,
-            IConfiguration config)
+            IConfiguration config,
+            DataContext context)
         {
             _user = user;
             _role = role;
             _config = config;
+            _context = context;
         }
         public async Task<bool> RegisterUser(RegisterUserDTO user, int roleId)
         {
@@ -49,10 +55,32 @@ namespace BasicStructure.Services.UserService
 
         public string GenerateTokenString(Models.LoginUser user)
         {
-            IEnumerable<System.Security.Claims.Claim> claims = new List<Claim>
+            var identityUser = _user.FindByEmailAsync(user.Email).Result;
+            var roleId = "dimmy";
+            if (identityUser != null)
+            {
+                // Get user roles
+                var roles = _user.GetRolesAsync(identityUser).Result;
+                foreach (var roleName in roles)
+                {
+                    var role = _role.FindByNameAsync(roleName);
+
+                    if (role != null)
+                    {
+                        // Access the role ID using role.Id
+                        roleId = role.Id.ToString();
+                        // Do something with roleId
+                    }
+                }
+                // Add roles as claims
+            }
+            var userClaims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim("UserId", identityUser.Id.ToString()),
+                new Claim("roleId", roleId),
             };
+            IEnumerable<System.Security.Claims.Claim> claims = userClaims;
             var securityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes
                 (_config.GetSection("JWT:Key").Value)
                 );
@@ -68,6 +96,40 @@ namespace BasicStructure.Services.UserService
                 );
             string tokenString = new JwtSecurityTokenHandler().WriteToken(securityoken);
             return tokenString;
+        }
+
+        public async Task<bool> CheckPermission(User user, int apiId)
+        {
+            var userId = user?.Id;
+            var roleId = user?.RoleId;
+            if(userId != null && roleId != null)
+            {
+                var dbPermissions = await _context.Permissions.ToListAsync();
+                foreach (var permission in dbPermissions)
+                {
+                    if(permission.APIId == apiId && permission.IdentityRoleId == roleId)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+
+        public User DecodeToken(string token)
+        {
+            // Decode the token
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+            var roleClaims = jsonToken?.Claims.Where(claim => claim.Type == "roleId").Select(claim => claim.Value).ToList();
+            var idClaims = jsonToken?.Claims.Where(claim => claim.Type == "UserId").Select(claim => claim.Value).ToList();
+            User dataObject = new User()
+            {
+                Id = int.Parse(idClaims[0]),
+                RoleId = int.Parse(roleClaims[0]),
+            };
+            return dataObject;
         }
     }
 }

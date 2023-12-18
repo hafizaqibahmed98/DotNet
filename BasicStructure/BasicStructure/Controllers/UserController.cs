@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace BasicFlowApp.Controllers
 {
@@ -10,16 +12,27 @@ namespace BasicFlowApp.Controllers
     public class UserController : ControllerBase
     {
         private readonly InterfaceUserService _userService;
+        private readonly IAuthService _authService;
 
-        public UserController(InterfaceUserService userService)
+
+        public UserController(InterfaceUserService userService, IAuthService authService)
         {
             this._userService = userService;
+            this._authService = authService;
         }
 
         [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<GetUserDTO>>>> GetAllUsers()
         {
-            return Ok(await _userService.GetAllUsers());
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            // Decode the token
+            User user = _authService.DecodeToken(token);
+            bool permissionAllowed = await _authService.CheckPermission(user, 1);
+            if (permissionAllowed)
+            {
+                return Ok(await _userService.GetAllUsers());
+            }
+            return BadRequest("Forbidden");
         }
 
         [HttpGet("id")]

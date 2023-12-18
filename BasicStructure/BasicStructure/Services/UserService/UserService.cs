@@ -1,4 +1,7 @@
-﻿namespace BasicStructure.Services.UserService
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+
+namespace BasicStructure.Services.UserService
 {
     public class UserService : InterfaceUserService
     {
