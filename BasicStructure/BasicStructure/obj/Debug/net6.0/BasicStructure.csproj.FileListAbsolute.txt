@@ -249,3 +249,9 @@ D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\obj\Debug\net6
 D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\obj\Debug\net6.0\BasicStructure.pdb
 D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\obj\Debug\net6.0\BasicStructure.genruntimeconfig.cache
 D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\obj\Debug\net6.0\ref\BasicStructure.dll
+D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\bin\Debug\net6.0\MailKit.dll
+D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\bin\Debug\net6.0\MimeKit.dll
+D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\bin\Debug\net6.0\NETCore.MailKit.dll
+D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\bin\Debug\net6.0\BouncyCastle.Crypto.dll
+D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\bin\Debug\net6.0\Services.dll
+D:\Self Learning\.NET\BaseStructure\BasicStructure\BasicStructure\bin\Debug\net6.0\Services.pdb

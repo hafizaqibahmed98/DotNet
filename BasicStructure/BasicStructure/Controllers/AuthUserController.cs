@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Services.Models;
+using Services.Services;
 
 namespace BasicStructure.Controllers
 {
@@ -7,9 +9,11 @@ namespace BasicStructure.Controllers
     public class AuthUserController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthUserController(IAuthService authService)
+        private readonly IEmailService _emailService;
+        public AuthUserController(IAuthService authService, IEmailService emailService)
         {
             _authService = authService;
+            _emailService = emailService;
         }
         
         [HttpPost("Register")]
@@ -30,6 +34,18 @@ namespace BasicStructure.Controllers
             }
             return BadRequest(result);
 
+        }
+
+        [HttpGet("EmailTest")]
+        public IActionResult TestEmailService()
+        {
+            var message = new Message(
+                new string[] { "aqib02541@gmail.com" },
+                "Testing Email Service",
+                "Hi, this is test mail"
+                );
+            _emailService.SendEmail(message);
+            return Ok("Email Sent Successfully");
         }
     }
 }

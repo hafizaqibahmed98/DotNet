@@ -8,6 +8,8 @@ global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.IdentityModel.Tokens;
 global using Microsoft.OpenApi.Models;
 global using AutoMapper;
+using Services.Models;
+using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,10 @@ builder.Services.AddAuthentication(options =>
         RequireExpirationTime = true,
     };
 });
+// Add Email config
+builder.Services.AddSingleton(builder.Configuration.GetSection("EmailConfiguration")
+                  .Get<EmailConfiguration>());
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<InterfaceUserService, UserService>();
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
