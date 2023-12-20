@@ -14,7 +14,8 @@ namespace BasicStructure.Services.UserService
         Task<bool> CheckPermission(User user, int apiId);
 
         Task<bool> ConfirmEmail(string token, string email);
-
+        Task<bool> ForgotPassword(string email, HttpContext httpContext);
+        Task<bool> ResetPassword(ResetPassword resetPassword);
         User DecodeToken(string token);
 
     }

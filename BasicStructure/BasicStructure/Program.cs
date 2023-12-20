@@ -22,6 +22,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.Configure<IdentityOptions>(
     opts => opts.SignIn.RequireConfirmedEmail = true
     );
+builder.Services.Configure<DataProtectionTokenProviderOptions>(
+    opts => opts.TokenLifespan = TimeSpan.FromMinutes(60)
+    );
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>( options =>
     options.Password.RequiredLength = 5
 ).AddEntityFrameworkStores<DataContext>()

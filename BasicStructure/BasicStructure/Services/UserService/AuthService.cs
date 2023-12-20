@@ -80,6 +80,41 @@ namespace BasicStructure.Services.UserService
             return false;
         }
 
+        public async Task<bool> ForgotPassword( string email, HttpContext httpContext)
+        {
+            var user = await _user.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var token = await _user.GeneratePasswordResetTokenAsync(user);
+                var scheme = httpContext.Request.Scheme;
+                var host = httpContext.Request.Host;
+                var pathBase = httpContext.Request.PathBase;
+
+                //string encodedToken = WebUtility.UrlEncode(token);
+                string encodedToken = token;
+                string encodedEmail = WebUtility.UrlEncode(email);
+
+                var confirmationLink = $"{scheme}://{host}{pathBase}/api/AuthUser/ResetPassword?token={encodedToken}&email={encodedEmail}";
+                var message = new Message(new string[] { user.Email! }, "Reset Password link", confirmationLink!);
+                _emailService.SendEmail(message);
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> ResetPassword(ResetPassword resetPassword)
+        {
+            var user = await _user.FindByEmailAsync(resetPassword.email);
+            if (user != null)
+            { 
+                var resetPasswordResult = await _user.ResetPasswordAsync(user, resetPassword.token, resetPassword.ConfirmPassword);
+                if (resetPasswordResult?.Succeeded == true)
+                    return true;
+            }
+            return false;
+        }
+
+
         public async Task<bool> LoginUser(Models.LoginUser user)
         {
             var identityUser = await _user.FindByEmailAsync(user.Email);

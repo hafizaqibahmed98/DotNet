@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services.Models;
 using Services.Services;
 
@@ -55,6 +56,26 @@ namespace BasicStructure.Controllers
             if(result==true)
                 return Ok("Email Verified Successfully");
             return BadRequest("This User Doesnot exist!");
+        }
+
+        [HttpPost("ForgotPassword")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var result = await _authService.ForgotPassword(email, HttpContext);
+            if (result == true)
+                return Ok("Reset Password Email Send Successfully");
+            return BadRequest("Failure Reset Password Email!");
+        }
+
+        [HttpPost("ResetPassword")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPassword resetPassword)
+        {
+            var result = await _authService.ResetPassword(resetPassword);
+            if (result == true)
+                return Ok("Password Changed Successfully");
+            return BadRequest("Failure!");
         }
     }
 }
