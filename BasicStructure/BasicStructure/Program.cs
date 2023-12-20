@@ -5,12 +5,12 @@ global using Microsoft.AspNetCore.Identity;
 global using BasicStructure.Services.UserService;
 global using BasicStructure.DTOS.UserDTO;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.IdentityModel.Tokens;
 global using Microsoft.OpenApi.Models;
 global using AutoMapper;
 using Services.Models;
 using Services.Services;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,6 +18,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+//Add Config for Required Email
+builder.Services.Configure<IdentityOptions>(
+    opts => opts.SignIn.RequireConfirmedEmail = true
+    );
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>( options =>
     options.Password.RequiredLength = 5
 ).AddEntityFrameworkStores<DataContext>()

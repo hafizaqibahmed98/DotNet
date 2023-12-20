@@ -19,7 +19,7 @@ namespace BasicStructure.Controllers
         [HttpPost("Register")]
         public async Task<bool> RegisterUser(RegisterUserDTO user, int role)
         {
-            return await _authService.RegisterUser(user, role);
+            return await _authService.RegisterUser(user, role, HttpContext);
 
         }
 
@@ -36,16 +36,25 @@ namespace BasicStructure.Controllers
 
         }
 
-        [HttpGet("EmailTest")]
-        public IActionResult TestEmailService()
+        //[HttpGet("EmailTest")]
+        //public IActionResult TestEmailService()
+        //{
+        //    var message = new Message(
+        //        new string[] { "aqib02541@gmail.com" },
+        //        "Testing Email Service",
+        //        "Hi, this is test mail"
+        //        );
+        //    _emailService.SendEmail(message);
+        //    return Ok("Email Sent Successfully");
+        //}
+
+        [HttpGet("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
-            var message = new Message(
-                new string[] { "aqib02541@gmail.com" },
-                "Testing Email Service",
-                "Hi, this is test mail"
-                );
-            _emailService.SendEmail(message);
-            return Ok("Email Sent Successfully");
+            var result = await _authService.ConfirmEmail(token, email);
+            if(result==true)
+                return Ok("Email Verified Successfully");
+            return BadRequest("This User Doesnot exist!");
         }
     }
 }

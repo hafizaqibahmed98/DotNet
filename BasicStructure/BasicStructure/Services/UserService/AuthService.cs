@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
+using Services.Services;
+using Services.Models;
+using System.Net;
 
 namespace BasicStructure.Services.UserService
 {
@@ -10,20 +10,26 @@ namespace BasicStructure.Services.UserService
     {
         private readonly UserManager<ApplicationUser> _user;
         private readonly RoleManager<IdentityRole<int>> _role;
+        private readonly IEmailService _emailService;
         private readonly IConfiguration _config;
         public DataContext _context { get; }
 
         public AuthService(UserManager<ApplicationUser> user,
             RoleManager<IdentityRole<int>> role,
+            IEmailService emailService,
             IConfiguration config,
-            DataContext context)
+            LinkGenerator linkGenerator,
+            IHttpContextAccessor httpContextAccessor,
+            DataContext context
+            )
         {
             _user = user;
             _role = role;
+            _emailService = emailService;
             _config = config;
             _context = context;
         }
-        public async Task<bool> RegisterUser(RegisterUserDTO user, int roleId)
+        public async Task<bool> RegisterUser(RegisterUserDTO user, int roleId, HttpContext httpContext)
         {
             var role = await _role.FindByIdAsync(roleId.ToString());
             if (role != null)
@@ -39,8 +45,37 @@ namespace BasicStructure.Services.UserService
                 if (result.Succeeded)
                 {
                     result = await _user.AddToRoleAsync(identityUser, role.Name);
+                    //Add Token to Verify the email....
+                    var token = await _user.GenerateEmailConfirmationTokenAsync(identityUser);
+                    //var confirmationLink = Url.Action(nameof(ConfirmEmail), "Register", new { token, email = user.Email }, Request.Scheme);
+                    //var httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
+                    //var confirmationLink = _linkGenerator.GetPathByAction(httpContext ,"ConfirmEmail", "Register", new { token, email = user.Email });
+                    var scheme = httpContext.Request.Scheme;
+                    var host = httpContext.Request.Host;
+                    var pathBase = httpContext.Request.PathBase;
+
+                    string encodedToken = WebUtility.UrlEncode(token);
+                    string encodedEmail = WebUtility.UrlEncode(identityUser.Email);
+
+                    var confirmationLink = $"{scheme}://{host}{pathBase}/api/AuthUser/ConfirmEmail?token={encodedToken}&email={encodedEmail}";
+                    var message = new Message(new string[] { user.Email! }, "Confirmation email link", confirmationLink!);
+                    _emailService.SendEmail(message);
                 }
                 return result.Succeeded;
+            }
+            return false;
+        }
+
+        public async Task<bool> ConfirmEmail(string token, string email)
+        {
+            var user = await _user.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var result = await _user.ConfirmEmailAsync(user, token);
+                if (result.Succeeded)
+                {
+                    return true;
+                }
             }
             return false;
         }
