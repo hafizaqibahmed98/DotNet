@@ -53,6 +53,9 @@ namespace BasicStructure.DataLayer
         }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<Field> Fields => Set<Field>();
+        public DbSet<Comment> Comments => Set<Comment>();
+        public DbSet<Coordinate> Coordinates => Set<Coordinate>();
         public DbSet<API> APIS => Set<API>();
         public DbSet<PermissionMatrix> Permissions => Set<PermissionMatrix>();
 

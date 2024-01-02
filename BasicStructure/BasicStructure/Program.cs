@@ -1,8 +1,12 @@
 global using BasicStructure.Models;
+global using BasicStructure.DTOS.FieldDTO;
+global using BasicStructure.DTOS.CommentDTO;
+global using BasicStructure.DTOS.CoordinateDTO;
 global using BasicStructure.DataLayer;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Identity;
 global using BasicStructure.Services.UserService;
+global using BasicStructure.Services.FieldService;
 global using BasicStructure.DTOS.UserDTO;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.AspNetCore.Mvc;
@@ -55,8 +59,10 @@ builder.Services.AddSingleton(builder.Configuration.GetSection("EmailConfigurati
                   .Get<EmailConfiguration>());
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<InterfaceUserService, UserService>();
+builder.Services.AddScoped<InterfaceFieldService, FieldService>();
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
