@@ -14,6 +14,8 @@
         Task<ServiceResponse<List<GetCommentDTO>>> AddComment(AddCommentDTO comment);
         Task<ServiceResponse<List<GetCommentDTO>>> GetAllComments();
         Task<ServiceResponse<List<GetCommentDTO>>> GetCommentsByFieldId(int id);
+        Task<ServiceResponse<List<GetCoordinateDTO>>> GetCoordinatesByFieldId(int id);
+
 
     }
 }

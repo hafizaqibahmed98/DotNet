@@ -233,6 +233,39 @@ namespace BasicStructure.Services.FieldService
 
             return serviceResponse;
         }
+        public async Task<ServiceResponse<List<GetCoordinateDTO>>> GetCoordinatesByFieldId(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetCoordinateDTO>>();
+            try
+            {
+                var dbFields = await _context.Fields.ToListAsync();
+                Field field = dbFields.Find(x => x.Id == id);
+                if (field == null)
+                    throw new Exception("Field not found");
+                var dbCoordinates = await _context.Coordinates
+                    .Where(coordinate => coordinate.FieldId == id)
+                    .Include(coordinate => coordinate.Field)
+                    .OrderBy(coordinate => coordinate.SequenceNumber)
+                    .ToListAsync();
+
+                serviceResponse.Data = dbCoordinates.Select(coordinate =>
+                    new GetCoordinateDTO()
+                    {
+                        SequenceNumber = coordinate.SequenceNumber,
+                        Latitude = coordinate.Latitude,
+                        Longitude = coordinate.Longitude,
+                    }
+                ).ToList();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Data = null;
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
 
     }
 }
