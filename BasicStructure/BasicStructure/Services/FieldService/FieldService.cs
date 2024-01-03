@@ -198,6 +198,41 @@ namespace BasicStructure.Services.FieldService
             ).ToList();
             return serviceResponse;
         }
+        public async Task<ServiceResponse<List<GetCommentDTO>>> GetCommentsByFieldId(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetCommentDTO>>();
+            try
+            {
+                var dbFields = await _context.Fields.ToListAsync();
+                Field field = dbFields.Find(x => x.Id == id);
+                if (field == null)
+                    throw new Exception("Field not found");
+                var dbComments = await _context.Comments
+                    .Where(comment => comment.FieldId == id)
+                    .Include(comment => comment.Field)
+                    .Include(comment => comment.User)
+                    .ToListAsync();
+
+                serviceResponse.Data = dbComments.Select(comment =>
+                    new GetCommentDTO()
+                    {
+                        Id = comment.Id,
+                        Title = comment.Title,
+                        Description = comment.Description,
+                        FieldName = comment.Field.FieldName,
+                        UserName = comment.User.FirstName,
+                    }
+                ).ToList();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Data = null;
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
 
     }
 }

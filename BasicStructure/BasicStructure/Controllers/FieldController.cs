@@ -75,6 +75,19 @@ namespace BasicFlowApp.Controllers
             }
             return BadRequest("Forbidden");
         }
+        [HttpGet("CommentsByField")]
+        public async Task<ActionResult<ServiceResponse<List<GetCommentDTO>>>> GetCommentsByFieldId(int id)
+        {
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            // Decode the token
+            User user = _authService.DecodeToken(token);
+            bool permissionAllowed = await _authService.CheckPermission(user, 1);
+            if (permissionAllowed)
+            {
+                return Ok(await _fieldService.GetCommentsByFieldId(id));
+            }
+            return BadRequest("Forbidden");
+        }
 
     }
 }
